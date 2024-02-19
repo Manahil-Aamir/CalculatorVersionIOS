@@ -41,6 +41,7 @@ dynamic lastpressed = ''; //last pressed value
 String tempnumber = '0'; //Store value of numbertwo in case equals is pressed consecutively
 String expression = '';
 Parser p = Parser();
+String error = '';
 
 //calculator basic calculations logic
 void calculations(buttontext){
@@ -56,6 +57,7 @@ void calculations(buttontext){
     finalresult = 0;
     val = false;
     isOperation = false;
+    error = '';
   }
 
 //conditions for '+/-' and '%
@@ -80,7 +82,7 @@ void calculations(buttontext){
   else{
     numbertwo = tempnumber;
   }
-  print(prevoperation + " " + numberone + " "+numbertwo);
+  
   val = true;
   //Checking which  type of operation it is (addition, subtraction, multiplication, division)
   if(buttontext == '='){
@@ -110,6 +112,7 @@ else{
     numberone = numberone.startsWith('0') ? buttontext : numberone + buttontext;
     finalresult = numberone;
     expression = numberone;
+    error ='';
   } 
 
   else {
@@ -129,8 +132,6 @@ setState(() {
   finalresult = finalresult;
   if(finalresult == 'Error'){
     displayresult = 'Error';
-    print('final:'+finalresult);
-    print('display:'+displayresult);
   }
   else{
     displayresult = displayresult;
@@ -141,7 +142,6 @@ setState(() {
 
 //if equals to is pressed
 void _equals(){
-  print('equals');
     if(prevoperation == '×'){
     expression += '*' + numbertwo;
   }
@@ -155,12 +155,16 @@ void _equals(){
     numberone = '0';
     numbertwo = '0';
     tempnumber = '0';
-    expression = '';
+    expression = 'Error';
+    error = 'Error';
     val = false;
     return;
   }
-  print(expression+'  prev:'+prevoperation+' current:'+operation);
-  print ('expression:'+expression);
+
+        if(error == 'Error'){
+      finalresult = "Error";
+      return;
+    } 
     Expression exp = p.parse(expression);
     ContextModel cm = ContextModel();
     finalresult = exp.evaluate(EvaluationType.REAL, cm);
@@ -175,20 +179,21 @@ void _equals(){
 void _addsubtract(String buttontext){
   
   expression += prevoperation + numbertwo;
-    print(expression+'  prev:'+prevoperation+' current:'+operation);
+   
   if((buttontext == '+' ||  buttontext == '-') && !(expression.contains('/') || expression.contains('*')) && prevoperation!=''){
+      if(error == 'Error'){
+      finalresult = "Error";
+      return;
+    } 
      Parser pe = Parser();
      Expression exp = p.parse(expression);
      ContextModel cm = ContextModel();
      double value = exp.evaluate(EvaluationType.REAL, cm);
       finalresult = value.toString();
       numberone = finalresult.toString();
-      //expression = finalresult.toString();
    
   }
 
-  //finalresult = _parseNumber(numberone) + _parseNumber(numbertwo);
-  //numberone = finalresult.toString();
   else{
     
   }
@@ -201,16 +206,17 @@ void _addsubtract(String buttontext){
 void _multiply(String buttontext){
   
   expression += '*' + numbertwo;
-    print(expression+'  prev:'+prevoperation+' current:'+operation);
+    
   if((buttontext == '+' ||  buttontext == '-')){
+        if(error == 'Error'){
+      finalresult = "Error";
+      return;
+    } 
     Expression exp = p.parse(expression);
     ContextModel cm = ContextModel();
     finalresult = exp.evaluate(EvaluationType.REAL, cm);
     numberone = finalresult.toString();
-    //expression = finalresult.toString();
   }
-  //finalresult = _parseNumber(numberone) + _parseNumber(numbertwo);
-  //numberone = finalresult.toString();
   else{
     expression +=  '*'+numbertwo;
   }
@@ -223,25 +229,27 @@ void _multiply(String buttontext){
 void _divide(String buttontext){
   print(numbertwo+ "two");
   expression += '/' + numbertwo;
-  print(expression+'  prev:'+prevoperation+' current:'+operation);
+ 
   //handling divide by zero
   if(numbertwo == '0')  {
     finalresult = 'Error';
     numberone = '0';
     numbertwo = '0';
     tempnumber = '0';
-    expression = '';
+    expression = 'Error';
+    error = 'Error';
   }
   else{
   if((buttontext == '+' ||  buttontext == '-')){
+    if(error == 'Error'){
+      finalresult = "Error";
+      return;
+    } 
     Expression exp = p.parse(expression);
     ContextModel cm = ContextModel();
     finalresult = exp.evaluate(EvaluationType.REAL, cm);
     numberone = finalresult.toString();
-    //expression = finalresult.toString();
   }
-  //finalresult = _parseNumber(numberone) + _parseNumber(numbertwo);
-  //numberone = finalresult.toString();
   tempnumber = numbertwo;
   numbertwo = '0';
   }
@@ -291,7 +299,6 @@ void _format(String number) {
     else{
       
     num numValue = num.parse(number);
-    print(numValue.runtimeType);
     String str;
     if (numValue.abs() > 100000000 || (numValue.abs() < 0.000000001 && numValue.abs() > 0)) {
       // Use scientific notation for very large and very small numbers
