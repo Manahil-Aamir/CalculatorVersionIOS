@@ -129,6 +129,8 @@ setState(() {
   finalresult = finalresult;
   if(finalresult == 'Error'){
     displayresult = 'Error';
+    print('final:'+finalresult);
+    print('display:'+displayresult);
   }
   else{
     displayresult = displayresult;
@@ -147,6 +149,15 @@ void _equals(){
     expression += '/' + numbertwo;
   }
   else{expression += prevoperation + numbertwo;
+  }
+    if(numbertwo == '0' && prevoperation=='÷')  {
+    finalresult = 'Error';
+    numberone = '0';
+    numbertwo = '0';
+    tempnumber = '0';
+    expression = '';
+    val = false;
+    return;
   }
   print(expression+'  prev:'+prevoperation+' current:'+operation);
   print ('expression:'+expression);
@@ -210,11 +221,11 @@ void _multiply(String buttontext){
 
 //method of division
 void _divide(String buttontext){
-
+  print(numbertwo+ "two");
   expression += '/' + numbertwo;
   print(expression+'  prev:'+prevoperation+' current:'+operation);
   //handling divide by zero
-  if(_parseNumber(numbertwo)==0)  {
+  if(numbertwo == '0')  {
     finalresult = 'Error';
     numberone = '0';
     numbertwo = '0';
